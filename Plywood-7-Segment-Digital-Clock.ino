@@ -14,11 +14,13 @@ Indexes of LEDs (2 per segment):
 
 #include <FastLED.h>
 #define NUM_LEDS 58
-#define DATA_PIN 6
+#define DATA_PIN 6 
 CRGB LEDs[NUM_LEDS];
 
 byte nrOfLEDsPerSegment = 2;
 void displayNumber(byte, byte);
+void displayDots();
+bool startupRun = false;
 
 void setup() {
   // Initialize LED strip
@@ -29,15 +31,28 @@ void setup() {
 }
 
 void loop() {
-  
-  int dly = 200;
 
-  for (byte j=0; j<4; j++) {
-    for (byte i=0; i<11; i++) {
-      displayNumber(i, j);
-      delay(dly);
+  if (!startupRun) {
+    int dly = 50;
+  
+    for (byte j=0; j<4; j++) {
+      for (byte i=0; i<11; i++) {
+        displayNumber(i, j);
+        delay(dly);
+      }
     }
+    startupRun = true;
   }
+
+  displayDots();
+  displayNumber(2,0);
+  displayNumber(5,1);
+  displayNumber(0,2);
+  displayNumber(1,3);
+  
+return;
+  
+
 
 return;
 
@@ -140,4 +155,10 @@ void allOn(CRGB color) {
   }
   FastLED.show();
   
+}
+
+void displayDots() {
+   LEDs[28] = CRGB::Red;
+   LEDs[29] = CRGB::Red;    
+   FastLED.show();
 }
