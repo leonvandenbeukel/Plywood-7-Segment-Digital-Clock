@@ -41,5 +41,5 @@ To power the clock you can use a regular 5V 2A power supply.
 
 ## YouTube video
 
-<a href="https://youtu.be/Z4b4v84smpg" target="_blank"><img src="https://img.youtube.com/vi/Z4b4v84smpg/0.jpg" 
+<a href="https://youtu.be/EQGggxqPL-g" target="_blank"><img src="https://img.youtube.com/vi/EQGggxqPL-g/0.jpg" 
 alt="Click to view: Plywood Clock" width="500" border="1" /></a>
