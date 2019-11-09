@@ -28,6 +28,8 @@ To power the clock you can use a regular 5V 2A power supply.
 
 ## Indexes of LEDs (2 per segment):
 
+Check the YouTube video for the order how to wire and solder them together because this is mirrored to the following diagram:
+
 ```
 
     47 46        33 32            17 16        3  2
