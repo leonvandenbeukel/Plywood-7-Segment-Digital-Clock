@@ -1,18 +1,26 @@
 /*
+  
+ Leon van den Beukel - 2019 
 
-Indexes of LEDs (2 per segment):
-
-    47 46        33 32            17 16        3  2
-  48     45    34     31        18     15    4      1
-  49     44    35     30   29   19     14    5      0
-    57 56        43 42            27 26       13 12
-  50     55    36     41   28   20     25    6     11
-  51     54    37     40        21     24    7     10 
-    52 53        38 39            22 23        8  9
+ Licence: Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) (https://creativecommons.org/licenses/by-nc-sa/4.0/)
     
 */
 
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <time.h>
 #include <FastLED.h>
+#include <EEPROM.h>
+
+const char *WIFI_NETWORK_NAME = "***";              // Change to your wifi network name
+const char *WIFI_PASSWORD = "***";                  // Change to your wifi password
+float timeZone = 1.0;                               // Change this value to your local timezone (in my case +1 for Amsterdam)
+const int DAY_LIGHT_OFFSET_SECONDS = 3600;          // Daylight saving
+
+const char *TIME_SERVER = "pool.ntp.org";
+const int EPOCH_1_1_2019 = 1546300800;
+time_t now;
+
 #define NUM_LEDS 58
 #define DATA_PIN 6 
 CRGB LEDs[NUM_LEDS];
@@ -20,69 +28,96 @@ CRGB LEDs[NUM_LEDS];
 byte nrOfLEDsPerSegment = 2;
 void displayNumber(byte, byte);
 void displayDots();
-bool startupRun = false;
 
-void setup() {
+#define BTN_PIN D8
+
+#define arr_len( x )  ( sizeof( x ) / sizeof( *x ) )
+CRGB colors[] = {CRGB::Red, CRGB::RoyalBlue, CRGB::Green, CRGB::Yellow, CRGB::Magenta, CRGB::White, CRGB::Blue};
+byte colorSize = arr_len(colors);
+byte colorIndex = 0;
+CRGB color = colors[colorIndex];
+
+void setup() { 
+
+  pinMode(BTN_PIN, INPUT);
+
   // Initialize LED strip
-  FastLED.delay(3000);
+  FastLED.delay(2000);
   
   // Check if you're LED strip is a RGB or GRB version (third parameter)
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(LEDs, NUM_LEDS);
+
+  Serial.begin(115200);          
+  
+  WiFi.begin(WIFI_NETWORK_NAME, WIFI_PASSWORD);
+
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
+  configTime(timeZone, DAY_LIGHT_OFFSET_SECONDS, TIME_SERVER);
+
+  while (now < EPOCH_1_1_2019)
+  {
+    now = time(nullptr);
+    delay(500);
+    Serial.print("*");
+  }
+
+  // If color is stored previously, than restore
+  EEPROM.begin(1);
+  colorIndex = EEPROM.read(0);
+  if (colorIndex >= 0) {
+    color = colors[colorIndex];
+    Serial.print("Previous color found: ");
+    Serial.println(colorIndex);
+  } else {
+    Serial.print("Previous color not found: ");
+    Serial.println(colorIndex);
+  }
 }
 
 void loop() {
 
-  if (!startupRun) {
-    int dly = 50;
-  
-    for (byte j=0; j<4; j++) {
-      for (byte i=0; i<11; i++) {
-        displayNumber(i, j);
-        delay(dly);
-      }
-    }
-    startupRun = true;
+  int buttonState = digitalRead(BTN_PIN);
+  if (buttonState == HIGH) {
+    Serial.println("Button Pushed");
+    colorIndex += 1;
+    if (colorIndex >= colorSize)
+      colorIndex = 0;
+    
+    color = colors[colorIndex];
+    
+    EEPROM.write(0, colorIndex); 
+    EEPROM.end();
+    Serial.print("Color index stored: ");
+    Serial.println(colorIndex);  
   }
+
+  struct tm *timeinfo;
+  time(&now);
+  timeinfo = localtime(&now);
+
+  int hour = timeinfo->tm_hour;
+  int mins = timeinfo->tm_min;
+
+  byte h1 = hour / 10;
+  byte h2 = hour % 10;
+  byte m1 = mins / 10;
+  byte m2 = mins % 10;
 
   displayDots();
-  displayNumber(2,0);
-  displayNumber(5,1);
-  displayNumber(0,2);
-  displayNumber(1,3);
   
-return;
-  
-
-
-return;
-
- for (int i=0; i<NUM_LEDS; i++){
-   // allOff();
-
-    //byte index = i * 2;
-    if (i>0) 
-      LEDs[i-1] = CRGB::Black;  
-    else 
-      LEDs[NUM_LEDS -1] = CRGB::Black;  
+  if (h1 > 0)
+    displayNumber(h1,3);
     
-    LEDs[i] = CRGB::Magenta;  
-    FastLED.show();
-    delay(5);
-  }
+  displayNumber(h2,2);
+  displayNumber(m1,1);
+  displayNumber(m2,0);
 
-return;
-
-  for (int i=0; i<7; i++){
-    allOff();
-
-    byte index = i * 2;
-    
-    LEDs[index] = CRGB::Red;
-    LEDs[index + 1] = CRGB::Red;
-    FastLED.show();
-    delay(300);
-  } 
-
+  delay(150);
 }
 
 void displayNumber(byte number, byte segment) {
@@ -133,7 +168,7 @@ Indexes of LEDs (2 per segment):
   };
 
   for (byte i=0; i<14; i++){
-    LEDs[i + startindex] = ((numbers[number] & 1 << i) == 1 << i) ? CRGB::Red : CRGB::Black;
+    LEDs[i + startindex] = ((numbers[number] & 1 << i) == 1 << i) ? color : CRGB::Black;
   }
 
   FastLED.show();  
@@ -158,7 +193,7 @@ void allOn(CRGB color) {
 }
 
 void displayDots() {
-   LEDs[28] = CRGB::Red;
-   LEDs[29] = CRGB::Red;    
+   LEDs[28] = color;
+   LEDs[29] = color;    
    FastLED.show();
 }
