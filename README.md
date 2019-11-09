@@ -15,6 +15,16 @@ Connect Ground from the usb breakout board to Ground on the LED strip.
 Connect pin D6 from the ESP module to the Data line on the LED strip.  
 Connect pin D8 from the ESP module to one side of the button and connect the other side of the button to 3.3V of the ESP module.  
 
+To power the clock you can use a regular 5V 2A power supply.
+
+| Components                   |
+| -------------                |
+| ESP8266 Wi-Fi module         |
+| USB break out board          |
+| 5V 2A power supply           |
+| Wires                        |
+| Mini breadboard              |
+
 ## Indexes of LEDs (2 per segment):
 
 ```
