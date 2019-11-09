@@ -24,6 +24,7 @@ To power the clock you can use a regular 5V 2A power supply.
 | 5V 2A power supply           |
 | Wires                        |
 | Mini breadboard              |
+| WS2812B LEDs                 |
 
 ## Indexes of LEDs (2 per segment):
 
