@@ -1,6 +1,6 @@
 # Plywood 7 Segment Digital Clock
 
-Design is done with [FreeCAD](https://www.freecadweb.org/) (Plywood-7-Segment-Digital-Clock.FCStd). This file contains all the source models for 3D printing and some of the paths for CNC machining (you probably have to recreate the paths for your CNC machine anyway but you can use the FreeCAD file for this). My paths are generated to use with a [GRBL](https://github.com/gnea/grbl/wiki) based machine.
+Design is done with [FreeCAD](https://www.freecadweb.org/) (Plywood-7-Segment-Digital-Clock.FCStd). This file contains all the source models for 3D printing and the paths for CNC machining (you might have to re-create the paths for your CNC machine but you can use the FreeCAD file for this). My paths are generated to use with a [GRBL](https://github.com/gnea/grbl/wiki) based machine.
 
 ## License
 
